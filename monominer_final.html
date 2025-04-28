@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MonoMiner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f0f0f;
+      color: #fff;
+      text-align: center;
+      padding-top: 50px;
+    }
+    input, button {
+      padding: 15px;
+      margin: 10px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+    }
+    input {
+      width: 300px;
+    }
+    button {
+      background: #6c5ce7;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #a29bfe;
+    }
+    #status {
+      margin-top: 20px;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>MonoMiner</h1>
+  <input type="text" id="apiKey" placeholder="Enter your API Key">
+  <br>
+  <button onclick="startMining()">Start Mining</button>
+  <button onclick="stopMining()">Stop Mining</button>
+
+  <div id="status">Status: Idle</div>
+
+  <script>
+    let intervalId;
+
+    function startMining() {
+      const apiKey = document.getElementById('apiKey').value.trim();
+      if (!apiKey) {
+        alert('Please enter your API Key!');
+        return;
+      }
+
+      document.getElementById('status').innerText = 'Status: Mining...';
+
+      intervalId = setInterval(() => {
+        fetch('https://rpc.blockvision.org/monad-testnet', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            "jsonrpc":"2.0",
+            "method":"eth_blockNumber",
+            "params":[],
+            "id":1
+          })
+        })
+        .then(response => response.json())
+        .then(data => console.log('Mined:', data))
+        .catch(err => console.error('Error:', err));
+      }, 1000); // setiap 1 detik
+    }
+
+    function stopMining() {
+      clearInterval(intervalId);
+      document.getElementById('status').innerText = 'Status: Stopped';
+    }
+  </script>
+
+</body>
+</html>
